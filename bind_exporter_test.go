@@ -65,7 +65,19 @@ var (
 		`bind_zone_serial{view="_default",zone_name="TEST_ZONE"} 123`,
 		`bind_resolver_response_errors_total{error="REFUSED",view="_bind"} 17`,
 		`bind_resolver_response_errors_total{error="REFUSED",view="_default"} 5798`,
+<<<<<<< HEAD
 	}
+=======
+	})
+
+	zoneStatsV3 = []string{
+		`bind_zone_incoming_rcodes_total{rcode="QrySuccess",zone_name="TEST_ZONE"} 163729`,
+		`bind_zone_incoming_rcodes_total{rcode="QryNXDOMAIN",zone_name="TEST_ZONE"} 4512`,
+		`bind_zone_incoming_queries_total{type="A",zone_name="TEST_ZONE"} 123123`,
+		`bind_zone_incoming_queries_total{type="CNAME",zone_name="TEST_ZONE"} 14953`,
+	}
+
+>>>>>>> zonestatspr/master
 	taskStats = []string{
 		`bind_tasks_running 8`,
 		`bind_worker_threads 16`,
@@ -86,7 +98,40 @@ func TestBindExporterV3Client(t *testing.T) {
 		server:  newV3Server(),
 		groups:  []bind.StatisticGroup{bind.ServerStats, bind.ViewStats, bind.TaskStats},
 		version: "xml.v3",
+<<<<<<< HEAD
 		include: combine([]string{`bind_up 1`}, serverStats, viewStats, taskStats),
+=======
+		include: combine([]string{`bind_up 1`}, serverStatsV3, viewStatsV3, zoneStatsV3, taskStats),
+	}.run(t)
+}
+
+func TestBindExporterAutomaticClient(t *testing.T) {
+	for _, test := range []bindExporterTest{
+		{
+			server:  newV2Server(),
+			groups:  []bind.StatisticGroup{bind.ServerStats},
+			version: "auto",
+			include: combine([]string{`bind_up 1`}, serverStatsV2),
+		},
+		{
+			server:  newV3Server(),
+			groups:  []bind.StatisticGroup{bind.ServerStats},
+			version: "auto",
+			include: combine([]string{`bind_up 1`}, serverStatsV3),
+		},
+	} {
+		test.run(t)
+	}
+}
+
+func TestBindExporterStatisticGroups(t *testing.T) {
+	bindExporterTest{
+		server:  newV2Server(),
+		groups:  []bind.StatisticGroup{bind.ServerStats},
+		version: "xml.v2",
+		include: combine([]string{`bind_up 1`}, serverStatsV2),
+		exclude: combine(viewStatsV2, taskStats, []string{`bind_tasks_running 0`, `bind_worker_threads 0`}),
+>>>>>>> zonestatspr/master
 	}.run(t)
 }
 
